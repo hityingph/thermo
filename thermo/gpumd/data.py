@@ -894,3 +894,76 @@ def reduce_frequency_info(freq, ndiv=1):
     freq['bin_count'] = np.sum(freq['bin_count'].reshape(-1, ndiv), axis=1)
     freq['ndiv'] = ndiv
     return freq
+
+def load_loss(directory=None, filename='loss.out'):
+    """
+    Loads the loss data from loss.out of NEP output file.
+
+    Args:
+        directory (str):
+            Directory to load thermal data file from
+
+        filename (str):
+            Name of thermal data file
+
+        Returns:
+            'output' dictionary containing the data from thermo.out
+
+    .. csv-table:: Output dictionary
+       :stub-columns: 1
+
+       **key**,Step,Total,L1,L2,E_train,F_train,V_train,E_test,F_test,V_test
+       **units**,1,     1, 1, 1,eV/atom,   eV/A,eV/atom,eV/atom, eV/A,eV/atom
+
+    """
+    loss_path = __get_path(directory, filename)
+    data = pd.read_csv(loss_path, delim_whitespace=True, header=None)
+    labels = ['Step', 'Total', 'L1', 'L2',
+              'E_train', 'F_train', 'V_train',
+              'E_test', 'F_test', 'V_test']
+
+    out = dict()
+    for i in range(data.shape[1]):
+        out[labels[i]] = data[i].to_numpy(dtype='float')
+
+    return out
+
+def load_train(directory=None, filename=None):
+    """
+    Loads data from NEP output file including the energy, force,
+    and virial out file of train and test dataset.
+
+    Args:
+        directory (str):
+            Directory to load thermal data file from
+
+        filename (str):
+            Name of thermal data file
+
+        Returns:
+            'output' dictionary containing the data from thermo.out
+
+    .. csv-table:: Output dictionary
+       :stub-columns: 1
+
+       **key**,   Energy, Force,   Virial
+       **units**,eV/atom,  eV/A,  eV/atom
+
+    """
+    train_path = __get_path(directory, filename)
+    data = pd.read_csv(train_path, delim_whitespace=True, header=None)
+    if filename in ("energy_train.out", "energy_test.out"):
+        labels = ['E_nep', 'E_reference']
+    elif filename in ("virial_train.out", "virial_test.out"):
+        labels = ['V_nep', 'V_reference']
+    elif filename in ("force_train.out", "force_test.out"):
+        labels = ['F_nep_x', 'F_nep_y', 'F_nep_z',
+                  'F_ref_x', 'F_ref_y', 'F_ref_z',]
+    else:
+        raise ValueError("The out filename is not correct, please check it again !")
+
+    out = dict()
+    for i in range(data.shape[1]):
+        out[labels[i]] = data[i].to_numpy(dtype='float')
+
+    return out
