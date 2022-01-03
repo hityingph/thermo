@@ -362,7 +362,7 @@ def lammps_atoms_to_gpumd(filename, M, cutoff, style='atomic',
 
 
 def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
-        order=None, group_index=None):
+        order=None, group_index=None, potential_label=None):
     """
     Converts ASE atoms to GPUMD compatible position file.
 
@@ -387,6 +387,12 @@ def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
 
         group_index (int):
             Selects the group to sort in the output.
+        
+        potential_label (o or 1):
+            0: empirical potentials, 
+            the corresponding atom type is a non-negative integer defined by the user. 
+            In an n-element system, these numbers should be integers from 0 to  n−1 .
+            1: nep potentials, the corresponding atom type is atom symbol (such as H, He, Li).
 
     """
 
@@ -407,7 +413,12 @@ def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
 
     type_dict = dict()
     for i, type_ in enumerate(types):
-        type_dict[type_] = i
+        if potential_label == 0:
+            type_dict[type_] = i
+        if potential_label == 1:
+            type_dict[type_] = type_
+        else:
+            raise ValueError("The potential label must be 0 or 1 !")
 
     # assume info[0] has same keys and number of groups as all other indices
     num_groups = 0
@@ -452,3 +463,4 @@ def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
         line = __get_atom_line(atom, velocity, groups, type_dict, info)
         f.writelines(line)
     return
+
