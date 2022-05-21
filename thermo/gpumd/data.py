@@ -334,11 +334,11 @@ def load_thermo(directory=None, filename='thermo.out'):
     """
     thermo_path = __get_path(directory, filename)
     data = pd.read_csv(thermo_path, delim_whitespace=True, header=None)
-    labels = ['T', 'K', 'U', 'Px', 'Py', 'Pz']
+    labels = ['T', 'K', 'U', 'Px', 'Py', 'Pz',  'Pyz', 'Pxz', 'Pxy']
     # Orthogonal
-    if data.shape[1] == 9:
+    if data.shape[1] == 12:
         labels += ['Lx', 'Ly', 'Lz']
-    elif data.shape[1] == 15:
+    elif data.shape[1] == 18:
         labels += ['ax', 'ay', 'az', 'bx', 'by', 'bz', 'cx', 'cy', 'cz']
 
     out = dict()
@@ -918,7 +918,7 @@ def load_loss(directory=None, filename='loss.out'):
     """
     loss_path = __get_path(directory, filename)
     data = pd.read_csv(loss_path, delim_whitespace=True, header=None)
-    labels = ['Step', 'Total', 'L1', 'L2',
+    labels = ['Step', 'Total', 'L1', 'L2', 
               'E_train', 'F_train', 'V_train',
               'E_test', 'F_test', 'V_test']
 
@@ -957,7 +957,7 @@ def load_train(directory=None, filename=None):
     elif filename in ("virial_train.out", "virial_test.out"):
         labels = ['V_nep', 'V_reference']
     elif filename in ("force_train.out", "force_test.out"):
-        labels = ['F_nep_x', 'F_nep_y', 'F_nep_z',
+        labels = ['F_nep_x', 'F_nep_y', 'F_nep_z', 
                   'F_ref_x', 'F_ref_y', 'F_ref_z',]
     else:
         raise ValueError("The out filename is not correct, please check it again !")
